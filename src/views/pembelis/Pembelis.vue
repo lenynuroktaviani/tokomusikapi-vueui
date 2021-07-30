@@ -1,0 +1,71 @@
+<template>
+  <div class="pembelis">
+    <!--<img alt="Vue logo" src="../assets/logo.png"> -->
+    <Slider />
+    <hr class="my-3">
+      <router-link class="btn btn-primary" to="/createpembelis">Add Pembeli</router-link>
+
+      <Cardpembelis :pembelis="pembelis" />
+
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Nama User</th>
+      <th scope="col">No Telepon</th>
+      <th scope="col">Alamat</th>
+      <th scope="col">Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="(pembeli, index) in pembelis" :key="index">
+      <td>{{ pembeli.nama_user }}</td>
+      <td>{{ pembeli.No_telp }}</td>
+      <td>{{ pembeli.alamat }}</td>
+      <td>
+        <router-link class="btn btn-success" :to="{name:'Editpembelis', params:{id:pembeli.id}}">Edit</router-link>
+        <button @click.prevent="pembeliDelete(pembeli.id)" class="btn btn-danger">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+  </div>
+</template>
+<script>
+import axios from 'axios'
+// @ is an alias to /src
+import Slider from "@/components/Slider.vue";
+import Cardpembelis from "@/components/Cardpembelis.vue";
+import { ref, onMounted } from 'vue';
+export default {
+  name: "Pembelis",
+  components: {
+    Slider,
+    Cardpembelis,
+  },
+  setup(){
+    let pembelis = ref([])
+    onMounted(() => {
+      axios.get('http://127.0.0.1:8000/api/pembelis')
+      .then(response => {
+        pembelis.value = response.data.data
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    })
+    function pembeliDelete(id){
+      axios.delete(`http://127.0.0.1:8000/api/pembelis/${id}`)
+      .then(()=>{
+        let z = this.pembelis.map(pembelis => pembelis.id).indexOf(id);
+        this.pembelis.splice(z, 1)
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+      return {
+      pembelis,
+      pembeliDelete
+    }
+  }
+};
+</script>
